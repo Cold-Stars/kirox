@@ -67,6 +67,26 @@ export namespace proxy {
 	        this.error = source["error"];
 	    }
 	}
+	export class PoolEntry {
+	    id: string;
+	    name: string;
+	    url: string;
+	    weight: number;
+	    enabled: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new PoolEntry(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.url = source["url"];
+	        this.weight = source["weight"];
+	        this.enabled = source["enabled"];
+	    }
+	}
 
 }
 

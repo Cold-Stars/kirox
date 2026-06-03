@@ -6,6 +6,8 @@ import {task} from '../models';
 
 export function AddOutlookAccounts(arg1:string):Promise<Record<string, any>>;
 
+export function AddProxyEntry(arg1:string,arg2:string,arg3:number):Promise<Record<string, any>>;
+
 export function CancelUpdate():Promise<Record<string, any>>;
 
 export function CheckLicense():Promise<Record<string, any>>;
@@ -17,6 +19,8 @@ export function ClearOutlookAccounts():Promise<Record<string, any>>;
 export function ClearRegisteredOutlookAccounts():Promise<Record<string, any>>;
 
 export function DeleteOutlookAccount(arg1:string):Promise<Record<string, any>>;
+
+export function DeleteProxyEntry(arg1:string):Promise<Record<string, any>>;
 
 export function DetectProxy(arg1:string):Promise<proxy.Info>;
 
@@ -54,6 +58,8 @@ export function GetTaskStatus():Promise<Record<string, any>>;
 
 export function ImportOutlookFile(arg1:string):Promise<Record<string, any>>;
 
+export function ListProxyPool():Promise<Array<proxy.PoolEntry>>;
+
 export function LoadOutputAccounts():Promise<Record<string, any>>;
 
 export function LogoutLicense():Promise<Record<string, any>>;
@@ -61,6 +67,8 @@ export function LogoutLicense():Promise<Record<string, any>>;
 export function OpenURL(arg1:string):Promise<void>;
 
 export function ResetDataDir():Promise<Record<string, any>>;
+
+export function ResetFingerprintCache():Promise<Record<string, any>>;
 
 export function ResetProxy():Promise<Record<string, any>>;
 
@@ -89,5 +97,9 @@ export function StopTask():Promise<Record<string, any>>;
 export function TestCloudMailConnection(arg1:string):Promise<Record<string, any>>;
 
 export function TestMoeMailConnection(arg1:string):Promise<Record<string, any>>;
+
+export function TestProxyEntry(arg1:string):Promise<proxy.Info>;
+
+export function UpdateProxyEntry(arg1:string,arg2:string,arg3:string,arg4:number,arg5:boolean):Promise<Record<string, any>>;
 
 export function VerifyLicense(arg1:string):Promise<Record<string, any>>;

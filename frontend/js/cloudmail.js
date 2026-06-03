@@ -175,21 +175,44 @@ async function inlineAddCloudMail() {
   var url = (document.getElementById('cloudmail-inline-url').value || '').trim();
   var em = (document.getElementById('cloudmail-inline-email').value || '').trim();
   var pwd = (document.getElementById('cloudmail-inline-password').value || '').trim();
-  var domainsText = (document.getElementById('cloudmail-inline-domains').value || '').trim();
-  var domains = parseDomainsText(domainsText);
 
   if (!url || !em || !pwd) {
     showToast(_cmT('cloudmail.requiredFields', '请填写 URL、管理员邮箱、密码'), 'error');
     return;
   }
-  // 域名字段已改为可选，未填则连接时从服务器 /api/setting/websiteConfig 自动拉
+  // 域名在服务器端通过 /api/setting/websiteConfig 自动获取，无需用户输入
   if (!name) name = generateCloudMailName();
   if (cloudmailConfigs.some(c => c.name === name)) {
     showToast(_cmT('cloudmail.nameExists', '配置名称已存在'), 'error');
     return;
   }
 
-  const newConfig = { name: name, url: url, email: em, password: pwd, domains: domains };
+  // 先测试连接，成功后才保存
+  var btn = document.getElementById('cloudmail-inline-test-btn');
+  var statusEl = document.getElementById('cloudmail-inline-status');
+  var btnOriginalHTML = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.textContent = _cmT('cloudmail.testing', '测试中...'); }
+  if (statusEl) { statusEl.style.color = ''; statusEl.textContent = ''; }
+
+  var testPayload = { name: name, url: url, email: em, password: pwd, domains: [] };
+  var testResult;
+  try {
+    testResult = await window.go.main.App.TestCloudMailConnection(JSON.stringify(testPayload));
+  } catch (e) {
+    testResult = { error: String(e) };
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = btnOriginalHTML; }
+  }
+
+  if (!testResult || testResult.error) {
+    var errMsg = (testResult && testResult.error) || _cmT('cloudmail.testFailedShort', '测试失败');
+    if (statusEl) { statusEl.style.color = 'var(--danger)'; statusEl.textContent = errMsg; }
+    showToast(_cmT('cloudmail.cannotSaveUntilOk', '连接测试未通过，未保存配置：') + errMsg, 'error');
+    return;
+  }
+
+  var fetchedDomains = testResult.domains || [];
+  const newConfig = { name: name, url: url, email: em, password: pwd, domains: fetchedDomains };
   cloudmailConfigs.push(newConfig);
   const saveResult = await window.go.main.App.SaveCloudMailConfigs(JSON.stringify(cloudmailConfigs));
   if (saveResult.error) {
@@ -198,25 +221,29 @@ async function inlineAddCloudMail() {
     return;
   }
 
+  // 标记为已测试通过
+  cloudmailConfigStatus[name] = { tested: true, success: true, domains: fetchedDomains };
+  saveCloudMailConfigStatus();
+
   document.getElementById('cloudmail-inline-name').value = '';
   document.getElementById('cloudmail-inline-url').value = '';
   document.getElementById('cloudmail-inline-email').value = '';
   document.getElementById('cloudmail-inline-password').value = '';
-  document.getElementById('cloudmail-inline-domains').value = '';
+  if (statusEl) { statusEl.style.color = 'var(--success)'; statusEl.textContent = ''; }
 
-  showToast(_cmT('cloudmail.addedNamed', { name: name }, '已添加: {name}'));
+  if (fetchedDomains.length > 0) {
+    showToast(_cmT('cloudmail.addedWithDomains', { name: name, n: fetchedDomains.length }, '已添加 {name}，{n} 个域名'));
+  } else {
+    showToast(_cmT('cloudmail.addedNamed', { name: name }, '已添加: {name}'));
+  }
+  renderCloudMailConfigList();
   updateCloudMailUI();
-
-  // 后台异步测试
-  testCloudMailConfigByIndex(cloudmailConfigs.length - 1);
 }
 
 async function inlineTestCloudMail() {
   var url = (document.getElementById('cloudmail-inline-url').value || '').trim();
   var em = (document.getElementById('cloudmail-inline-email').value || '').trim();
   var pwd = (document.getElementById('cloudmail-inline-password').value || '').trim();
-  var domainsText = (document.getElementById('cloudmail-inline-domains').value || '').trim();
-  var domains = parseDomainsText(domainsText);
 
   if (!url || !em || !pwd) {
     showToast(_cmT('cloudmail.requiredFields', '请填写 URL、管理员邮箱、密码'), 'error');
@@ -224,11 +251,12 @@ async function inlineTestCloudMail() {
   }
   var btn = document.getElementById('cloudmail-inline-test-btn');
   var statusEl = document.getElementById('cloudmail-inline-status');
+  var btnOriginalHTML = btn ? btn.innerHTML : '';
   btn.disabled = true; btn.textContent = _cmT('cloudmail.testing', '测试中...');
   if (statusEl) statusEl.textContent = '';
   try {
     var result = await window.go.main.App.TestCloudMailConnection(JSON.stringify({
-      name: 'inline-test', url: url, email: em, password: pwd, domains: domains
+      name: 'inline-test', url: url, email: em, password: pwd, domains: []
     }));
     if (result.success) {
       var fetched = result.domains || [];
@@ -252,7 +280,7 @@ async function inlineTestCloudMail() {
       statusEl.textContent = _cmT('cloudmail.testFailedShort', '测试失败');
     }
   }
-  btn.disabled = false; btn.textContent = _cmT('common.test', '测试');
+  btn.disabled = false; btn.innerHTML = btnOriginalHTML;
 }
 
 async function testCloudMailConfigByIndex(index) {

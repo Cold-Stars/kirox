@@ -6,6 +6,10 @@ export function AddOutlookAccounts(arg1) {
   return window['go']['main']['App']['AddOutlookAccounts'](arg1);
 }
 
+export function AddProxyEntry(arg1, arg2, arg3) {
+  return window['go']['main']['App']['AddProxyEntry'](arg1, arg2, arg3);
+}
+
 export function CancelUpdate() {
   return window['go']['main']['App']['CancelUpdate']();
 }
@@ -28,6 +32,10 @@ export function ClearRegisteredOutlookAccounts() {
 
 export function DeleteOutlookAccount(arg1) {
   return window['go']['main']['App']['DeleteOutlookAccount'](arg1);
+}
+
+export function DeleteProxyEntry(arg1) {
+  return window['go']['main']['App']['DeleteProxyEntry'](arg1);
 }
 
 export function DetectProxy(arg1) {
@@ -102,6 +110,10 @@ export function ImportOutlookFile(arg1) {
   return window['go']['main']['App']['ImportOutlookFile'](arg1);
 }
 
+export function ListProxyPool() {
+  return window['go']['main']['App']['ListProxyPool']();
+}
+
 export function LoadOutputAccounts() {
   return window['go']['main']['App']['LoadOutputAccounts']();
 }
@@ -116,6 +128,10 @@ export function OpenURL(arg1) {
 
 export function ResetDataDir() {
   return window['go']['main']['App']['ResetDataDir']();
+}
+
+export function ResetFingerprintCache() {
+  return window['go']['main']['App']['ResetFingerprintCache']();
 }
 
 export function ResetProxy() {
@@ -172,6 +188,14 @@ export function TestCloudMailConnection(arg1) {
 
 export function TestMoeMailConnection(arg1) {
   return window['go']['main']['App']['TestMoeMailConnection'](arg1);
+}
+
+export function TestProxyEntry(arg1) {
+  return window['go']['main']['App']['TestProxyEntry'](arg1);
+}
+
+export function UpdateProxyEntry(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['main']['App']['UpdateProxyEntry'](arg1, arg2, arg3, arg4, arg5);
 }
 
 export function VerifyLicense(arg1) {

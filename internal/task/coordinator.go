@@ -13,6 +13,7 @@ import (
 	"reg_go/internal/core"
 	"reg_go/internal/data"
 	"reg_go/internal/email"
+	"reg_go/internal/proxy"
 	"reg_go/internal/storage"
 )
 
@@ -298,6 +299,11 @@ func runBatch(req StartTaskRequest, emailProvider string, outlookAccounts []emai
 
 		taskCfg := *taskConfig
 		taskCfg.Password = core.GenPassword()
+		// 多代理池：若存在启用项，按权重抽签覆盖单代理
+		if picked := proxy.PickRandom(); picked != "" {
+			taskCfg.Proxy = picked
+			log.Printf("[Kiro][%d/%d] 选中代理 %s", i+1, req.Count, picked)
+		}
 		var currentEmail string
 
 		// 根据邮箱提供商类型获取邮箱

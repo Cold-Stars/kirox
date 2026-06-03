@@ -458,6 +458,7 @@ async function loadConfig() {
   loadDataDir();
   loadResultOutputDir();
   loadProxy();
+  if (typeof loadProxyPool === 'function') loadProxyPool();
   startOverviewTimer();
   console.log('[启动] 初始化完成');
 }
